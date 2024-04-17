@@ -1,6 +1,6 @@
 module github.com/graaphscom/icommon/extractor
 
-go 1.21
+go 1.22
 
 require (
 	github.com/redis/rueidis v1.0.28

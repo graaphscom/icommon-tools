@@ -1,18 +1,17 @@
 package tsmakers
 
-type Maker func(src, dest string, resultCh chan<- makeResult)
+type Maker func(src, dest, iconName string, resultCh chan<- MakeResult)
 
-type makeResult struct {
-	success *makeDetails
-	err     *makeError
+type MakeResult struct {
+	Success *MakeDetails
+	Err     *MakeError
 }
 
-type makeError struct {
-	details makeDetails
-	err     error
+type MakeError struct {
+	Details MakeDetails
+	Err     error
 }
 
-type makeDetails struct {
-	divisionPath string
-	iconName     string
+type MakeDetails struct {
+	Dest string
 }

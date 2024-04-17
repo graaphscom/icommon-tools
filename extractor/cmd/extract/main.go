@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/graaphscom/icommon/extractor/json"
+	"github.com/graaphscom/icommon/extractor/tsmakers"
 	"github.com/graaphscom/icommon/extractor/unitree"
 	"github.com/redis/rueidis"
 	"log"
@@ -105,5 +106,27 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Printf("Total icons count: %d", iconsCount)
+	resultCh := make(chan tsmakers.MakeResult, iconsCount)
+
+	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
+		for _, icon := range iconSet.Icons {
+			iconSet.TsMaker(icon.SrcFile, path.Join(manifest.TsResultPath, path.Join(segments...), icon.Name+".ts"), icon.Name, resultCh)
+		}
+	})
+
+	successCount := 0
+	errCount := 0
+
+	for range iconsCount {
+		writeResult := <-resultCh
+		if writeResult.Success != nil {
+			successCount++
+		}
+		if writeResult.Err != nil {
+			fmt.Println(writeResult.Err)
+			errCount++
+		}
+	}
+
+	fmt.Printf("Total icons count: %d\ntsmakers success: %d\ntsmakers errors: %d", iconsCount, successCount, errCount)
 }

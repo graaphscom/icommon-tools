@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_initial.json")
+	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {

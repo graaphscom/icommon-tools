@@ -1,35 +1,47 @@
 {
   "redisUrl": "redis://localhost:6379",
   "tsResultPath": "/Users/konradmikucki/Downloads",
-  "vendorsBasePath": "/Users/konradmikucki/Downloads/icons",
-  "vendorsPaths": {
+  "vendorsClonePath": "/Users/konradmikucki/Downloads/icommon-src",
+  "vendors": {
     "boxicons": {
-      "icons": "boxicons-master/svg"
+      "repoUrl": "git@github.com:atisawd/boxicons",
+      "iconsPath": "svg"
     },
     "bytesize": {
-      "icons": "bytesize-icons-1.4/dist/icons"
+      "repoUrl": "git@github.com:danklammer/bytesize-icons",
+      "iconsPath": "dist/icons"
     },
     "fluentui": {
-      "icons": "fluentui-system-icons-1.1.224/assets"
+      "repoUrl": "git@github.com:microsoft/fluentui-system-icons",
+      "iconsPath": "assets"
     },
     "fontawesome": {
-      "icons": "fontawesome-free-6.4.2-web/svgs",
-      "metadata": "fontawesome-free-6.4.2-web/metadata/icons.json"
+      "repoUrl": "git@github.com:FortAwesome/Font-Awesome",
+      "iconsPath": "svgs",
+      "metadataPath": "metadata/icons.json"
+    },
+    "material": {
+      "repoUrl": "git@github.com:google/material-design-icons.git",
+      "iconsPath": "src"
     },
     "octicons": {
-      "icons": "octicons-19.8.0/icons",
-      "metadata": "octicons-19.8.0/keywords.json"
+      "repoUrl": "git@github.com:primer/octicons",
+      "iconsPath": "icons",
+      "metadataPath": "keywords.json"
     },
     "radixui": {
-      "icons": "icons--radix-ui-react-icons-1.0.3/packages/radix-icons/icons"
+      "repoUrl": "git@github.com:radix-ui/icons",
+      "iconsPath": "packages/radix-icons/icons"
     },
     "remixicon": {
-      "icons": "RemixIcon-3.5.0/icons",
-      "metadata": "RemixIcon-3.5.0/tags.json"
+      "repoUrl": "git@github.com:Remix-Design/RemixIcon",
+      "iconsPath": "icons",
+      "metadataPath": "tags.json"
     },
     "unicons": {
-      "icons": "unicons-3.0.0/svg",
-      "metadata": "unicons-3.0.0/json"
+      "repoUrl": "git@github.com:Iconscout/unicons",
+      "iconsPath": "svg",
+      "metadataPath": "json"
     }
   }
 }

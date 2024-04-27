@@ -76,6 +76,10 @@ export const {{.IconName}} = {
 };
 `)
 
+var Material Maker = func(src, dest, iconName string, resultCh chan<- MakeResult) {
+	resultCh <- MakeResult{Err: &MakeError{Err: errors.New("not implemented"), Details: MakeDetails{Dest: dest}}}
+}
+
 var Octicons Maker = func(src, dest, iconName string, resultCh chan<- MakeResult) {
 	resultCh <- MakeResult{Err: &MakeError{Err: errors.New("not implemented"), Details: MakeDetails{Dest: dest}}}
 }

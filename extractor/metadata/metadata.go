@@ -1,7 +1,9 @@
 package metadata
 
 import (
+	"errors"
 	"github.com/graaphscom/icommon/extractor/json"
+	"os"
 	"path"
 	"strings"
 )
@@ -16,10 +18,10 @@ func (S Store) GetFluentui(asset string) (Fluentui, error) {
 	}
 
 	result, err := json.ReadJson[Fluentui](
-		path.Join(S.manifest.VendorsBasePath, S.manifest.VendorsPaths["fluentui"].Icons, asset, "metadata.json"),
+		path.Join(S.manifest.VendorsClonePath, "fluentui", S.manifest.Vendors["fluentui"].IconsPath, asset, "metadata.json"),
 	)
 
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return Fluentui{}, err
 	}
 
@@ -37,7 +39,20 @@ func (S Store) GetOcticons() (Octicons, error) {
 }
 
 func (S Store) GetRemixicon() (Remixicon, error) {
-	return singleFile[Remixicon](&S.metadata.remixicon, S.manifest, "remixicon")
+	if S.metadata.remixicon != nil {
+		return S.metadata.remixicon, nil
+	}
+
+	result, err := json.ReadJsonOmitProp[Remixicon](path.Join(S.manifest.VendorsClonePath, "remixicon", S.manifest.Vendors["remixicon"].MetadataPath), "_comment")
+
+	if err != nil {
+		var empty Remixicon
+		return empty, err
+	}
+
+	S.metadata.remixicon = result
+
+	return result, nil
 }
 
 func (S Store) GetUnicons(variant string) (UniconsQuickAccess, error) {
@@ -50,7 +65,7 @@ func (S Store) GetUnicons(variant string) (UniconsQuickAccess, error) {
 	}
 
 	jsonContents, err := json.ReadJson[unicons](
-		path.Join(S.manifest.VendorsBasePath, S.manifest.VendorsPaths["unicons"].Metadata, strings.Join([]string{variant, ".json"}, "")),
+		path.Join(S.manifest.VendorsClonePath, "unicons", S.manifest.Vendors["unicons"].MetadataPath, strings.Join([]string{variant, ".json"}, "")),
 	)
 
 	if err != nil {
@@ -67,12 +82,12 @@ func (S Store) GetUnicons(variant string) (UniconsQuickAccess, error) {
 	return result, nil
 }
 
-func singleFile[T Fontawesome | Octicons | Remixicon](cacheEntry *T, manifest json.IcoManifest, vendor string) (T, error) {
+func singleFile[T Fontawesome | Octicons](cacheEntry *T, manifest json.IcoManifest, vendor string) (T, error) {
 	if *cacheEntry != nil {
 		return *cacheEntry, nil
 	}
 
-	result, err := json.ReadJson[T](path.Join(manifest.VendorsBasePath, manifest.VendorsPaths[vendor].Metadata))
+	result, err := json.ReadJson[T](path.Join(manifest.VendorsClonePath, vendor, manifest.Vendors[vendor].MetadataPath))
 
 	if err != nil {
 		var empty T

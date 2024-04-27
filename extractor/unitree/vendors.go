@@ -5,6 +5,7 @@ import (
 	"github.com/graaphscom/icommon/extractor/metadata"
 	"github.com/graaphscom/icommon/extractor/tsmakers"
 	"os"
+	"path"
 	"regexp"
 	"slices"
 	"strings"
@@ -76,6 +77,9 @@ var treeBuilders = map[string]treeBuilder{
 			},
 			tsMaker: tsmakers.Fontawesome,
 		},
+	},
+	"material": categoriesTreeBuilder{
+		iconsTreeBuilder: materialIconsTreeBuilder{},
 	},
 	"octicons": iconsTreeBuilder{
 		iconNameConverter: iconNameKebabCaseConverter,
@@ -153,8 +157,72 @@ var treeBuilders = map[string]treeBuilder{
 	},
 }
 
+func (b materialIconsTreeBuilder) buildTree(metadata metadata.Store, src, rootName string) (IconsTree, error) {
+	srcEntries, err := os.ReadDir(src)
+
+	if err != nil {
+		return IconsTree{}, err
+	}
+
+	icons := make([]Icon, 0, len(srcEntries))
+
+	for _, srcEntry := range srcEntries {
+		if !srcEntry.IsDir() {
+			continue
+		}
+
+		subSrcEntries, err := os.ReadDir(path.Join(src, srcEntry.Name()))
+		if err != nil {
+			return IconsTree{}, err
+		}
+
+		searchTag := strings.ReplaceAll(srcEntry.Name(), "_", " ")
+		snakeCaseConverted := iconNameSnakeCaseConverter(srcEntry.Name())
+		for _, subSrcEntry := range subSrcEntries {
+			if !subSrcEntry.IsDir() {
+				continue
+			}
+
+			subSubSrcEntries, err := os.ReadDir(path.Join(src, srcEntry.Name(), subSrcEntry.Name()))
+			if err != nil {
+				return IconsTree{}, err
+			}
+
+			style := strings.TrimPrefix(subSrcEntry.Name(), "materialicons")
+			var styleFirstUpper string
+			if len(style) > 0 {
+				styleFirstUpper = strings.ToUpper(string(style[0])) + style[1:]
+			}
+			for _, subSubSrcEntry := range subSubSrcEntries {
+				icons = append(icons, Icon{
+					Name:    snakeCaseConverted + styleFirstUpper + strings.TrimSuffix(subSubSrcEntry.Name(), ".svg"),
+					SrcFile: path.Join(src, srcEntry.Name(), subSrcEntry.Name(), subSubSrcEntry.Name()),
+					Tags: IconTags{
+						Search: []string{searchTag},
+						Visual: []string{style, strings.TrimSuffix(subSubSrcEntry.Name(), "px.svg")},
+					},
+				})
+			}
+		}
+	}
+
+	return IconsTree{
+		Name: rootName,
+		IconSet: &IconSet{
+			Icons:   icons,
+			TsMaker: tsmakers.Material,
+		},
+	}, nil
+}
+
+type materialIconsTreeBuilder struct{}
+
 func iconNameKebabCaseConverter(in string) string {
 	return fixVarNameFirstChar(toCamelCase(strings.TrimSuffix(in, ".svg"), kebabCaseRegexp))
+}
+
+func iconNameSnakeCaseConverter(in string) string {
+	return fixVarNameFirstChar(toCamelCase(strings.TrimSuffix(in, ".svg"), snakeCaseRegexp))
 }
 
 func treeNameSpaceConverter(in string) string {
@@ -172,16 +240,16 @@ func toCamelCase(varName string, initialCaseRegexp *regexp.Regexp) string {
 	return strings.ToLower(string(converted[0])) + converted[1:]
 }
 
-var kebabCaseRegexp, _ = regexp.Compile(`-\w{1}`)
-var snakeCaseRegexp, _ = regexp.Compile(`_\w{1}`)
-var spaceCaseRegexp, _ = regexp.Compile(` \w{1}`)
+var kebabCaseRegexp, _ = regexp.Compile(`-\w`)
+var snakeCaseRegexp, _ = regexp.Compile(`_\w`)
+var spaceCaseRegexp, _ = regexp.Compile(` \w`)
 var firstHyphenRegexp, _ = regexp.Compile(`^\w*-`)
 var fluentuiTagsRegexp, _ = regexp.Compile(`ic_fluent_(.*?)_(\d*)?_(regular|filled)?(_ltr)?(_rtl)?.svg`)
 var octiconsTagsRegexp, _ = regexp.Compile(`(.*?)(-circle)?(-fill)?(-\d*)?.svg`)
 var remixiconTagsRegexp, _ = regexp.Compile(`(.*)(-line|-fill)?.svg`)
 
 func fixVarNameFirstChar(varName string) string {
-	notAllowedFirstCharRegexp, _ := regexp.Compile("^[^A-Za-z_]{1}")
+	notAllowedFirstCharRegexp, _ := regexp.Compile("^[^A-Za-z_]")
 	if notAllowedFirstCharRegexp.MatchString(varName) {
 		return fmt.Sprintf("__%s", varName)
 	}

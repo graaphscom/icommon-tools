@@ -1,35 +1,47 @@
 {
   "redisUrl": "redis://localhost:6379",
   "tsResultPath": "testdata/successful-result",
-  "vendorsBasePath": "testdata/initial",
-  "vendorsPaths": {
+  "vendorsClonePath": "testdata/initial",
+  "vendors": {
     "boxicons": {
-      "icons": "boxicons/svg"
+      "repoUrl": "git@github.com:atisawd/boxicons",
+      "iconsPath": "svg"
     },
     "bytesize": {
-      "icons": "bytesize/dist/icons"
+      "repoUrl": "git@github.com:danklammer/bytesize-icons",
+      "iconsPath": "dist/icons"
     },
     "fluentui": {
-      "icons": "fluentui/assets"
+      "repoUrl": "git@github.com:microsoft/fluentui-system-icons",
+      "iconsPath": "assets"
     },
     "fontawesome": {
-      "icons": "fontawesome/svgs",
-      "metadata": "fontawesome/metadata/icons.json"
+      "repoUrl": "git@github.com:FortAwesome/Font-Awesome",
+      "iconsPath": "svgs",
+      "metadataPath": "metadata/icons.json"
+    },
+    "material": {
+      "repoUrl": "git@github.com:google/material-design-icons.git",
+      "iconsPath": "src"
     },
     "octicons": {
-      "icons": "octicons/icons",
-      "metadata": "octicons/keywords.json"
+      "repoUrl": "git@github.com:primer/octicons",
+      "iconsPath": "icons",
+      "metadataPath": "keywords.json"
     },
     "radixui": {
-      "icons": "radixui/packages/radix-icons/icons"
+      "repoUrl": "git@github.com:radix-ui/icons",
+      "iconsPath": "packages/radix-icons/icons"
     },
     "remixicon": {
-      "icons": "remixicon/icons",
-      "metadata": "remixicon/tags.json"
+      "repoUrl": "git@github.com:Remix-Design/RemixIcon",
+      "iconsPath": "icons",
+      "metadataPath": "tags.json"
     },
     "unicons": {
-      "icons": "unicons/svg",
-      "metadata": "unicons/json"
+      "repoUrl": "git@github.com:Iconscout/unicons",
+      "iconsPath": "svg",
+      "metadataPath": "json"
     }
   }
 }

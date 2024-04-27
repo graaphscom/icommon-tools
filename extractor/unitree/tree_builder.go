@@ -10,16 +10,16 @@ import (
 )
 
 func BuildRootTree(manifest json.IcoManifest) (IconsTree, error) {
-	subTrees := make([]IconsTree, 0, len(manifest.VendorsPaths))
+	subTrees := make([]IconsTree, 0, len(manifest.Vendors))
 
 	metadataStore := metadata.NewStore(manifest)
 
-	for vendor, vendorPaths := range manifest.VendorsPaths {
+	for vendor, vendorPaths := range manifest.Vendors {
 		vendorTreeBuilder, ok := treeBuilders[vendor]
 		if !ok {
 			return IconsTree{}, fmt.Errorf("tree builder doesn't exist for %s", vendor)
 		}
-		vendorTree, err := vendorTreeBuilder.buildTree(metadataStore, path.Join(manifest.VendorsBasePath, vendorPaths.Icons), vendor)
+		vendorTree, err := vendorTreeBuilder.buildTree(metadataStore, path.Join(manifest.VendorsClonePath, vendor, vendorPaths.IconsPath), vendor)
 		if err != nil {
 			return IconsTree{}, err
 		}

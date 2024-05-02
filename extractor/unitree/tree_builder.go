@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/graaphscom/icommon/extractor/json"
 	"github.com/graaphscom/icommon/extractor/metadata"
-	"github.com/graaphscom/icommon/extractor/tsmakers"
 	"os"
 	"path"
 )
@@ -96,7 +95,7 @@ func (b iconsTreeBuilder) buildTree(metadata metadata.Store, src, rootName strin
 		treeName = b.treeNameConverter(rootName)
 	}
 
-	return IconsTree{Name: treeName, IconSet: &IconSet{Icons: icons, TsMaker: b.tsMaker}}, nil
+	return IconsTree{Name: treeName, IconSet: &IconSet{Icons: icons}}, nil
 }
 
 type iconsTreeBuilder struct {
@@ -104,5 +103,4 @@ type iconsTreeBuilder struct {
 	treeNameConverter func(in string) string
 	srcSuffix         string
 	tagsExtractor     func(metadata metadata.Store, rawRootName, rawName string) (IconTags, error)
-	tsMaker           tsmakers.Maker
 }

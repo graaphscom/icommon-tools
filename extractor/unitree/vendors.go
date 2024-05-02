@@ -3,7 +3,6 @@ package unitree
 import (
 	"fmt"
 	"github.com/graaphscom/icommon/extractor/metadata"
-	"github.com/graaphscom/icommon/extractor/tsmakers"
 	"os"
 	"path"
 	"regexp"
@@ -23,13 +22,11 @@ var treeBuilders = map[string]treeBuilder{
 					Visual: []string{rawRootName},
 				}, nil
 			},
-			tsMaker: tsmakers.Boxicons,
 		},
 	},
 	"bytesize": iconsTreeBuilder{
 		iconNameConverter: iconNameKebabCaseConverter,
 		tagsExtractor:     tagsExtractorKebabCase,
-		tsMaker:           tsmakers.Bytesize,
 	},
 	"fluentui": categoriesTreeBuilder{
 		iconsTreeBuilder: iconsTreeBuilder{
@@ -55,7 +52,6 @@ var treeBuilders = map[string]treeBuilder{
 					Visual: matches[2:],
 				}, nil
 			},
-			tsMaker: tsmakers.Fluentui,
 		},
 	},
 	"fontawesome": categoriesTreeBuilder{
@@ -75,7 +71,6 @@ var treeBuilders = map[string]treeBuilder{
 				}
 				return IconTags{}, nil
 			},
-			tsMaker: tsmakers.Fontawesome,
 		},
 	},
 	"material": categoriesTreeBuilder{
@@ -101,12 +96,10 @@ var treeBuilders = map[string]treeBuilder{
 			}
 			return IconTags{Search: searchTags, Visual: visualTags}, nil
 		},
-		tsMaker: tsmakers.Octicons,
 	},
 	"radixui": iconsTreeBuilder{
 		iconNameConverter: iconNameKebabCaseConverter,
 		tagsExtractor:     tagsExtractorKebabCase,
-		tsMaker:           tsmakers.Radixui,
 	},
 	"remixicon": categoriesTreeBuilder{
 		iconsTreeBuilder: iconsTreeBuilder{
@@ -128,7 +121,6 @@ var treeBuilders = map[string]treeBuilder{
 					Visual: []string{strings.Trim(matches[2], "-")},
 				}, nil
 			},
-			tsMaker: tsmakers.Remixicon,
 		},
 	},
 	"unicons": categoriesTreeBuilder{
@@ -152,12 +144,11 @@ var treeBuilders = map[string]treeBuilder{
 
 				return IconTags{Search: searchTags, Visual: []string{rawRootName}}, nil
 			},
-			tsMaker: tsmakers.Unicons,
 		},
 	},
 }
 
-func (b materialIconsTreeBuilder) buildTree(metadata metadata.Store, src, rootName string) (IconsTree, error) {
+func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName string) (IconsTree, error) {
 	srcEntries, err := os.ReadDir(src)
 
 	if err != nil {
@@ -209,8 +200,7 @@ func (b materialIconsTreeBuilder) buildTree(metadata metadata.Store, src, rootNa
 	return IconsTree{
 		Name: rootName,
 		IconSet: &IconSet{
-			Icons:   icons,
-			TsMaker: tsmakers.Material,
+			Icons: icons,
 		},
 	}, nil
 }

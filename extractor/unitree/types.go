@@ -3,7 +3,6 @@ package unitree
 import (
 	"errors"
 	"github.com/graaphscom/icommon/extractor/metadata"
-	"github.com/graaphscom/icommon/extractor/tsmakers"
 )
 
 type treeBuilder interface {
@@ -53,8 +52,7 @@ func (tree IconsTree) MustTraverse(segments []string, iconSetFn func(segments []
 }
 
 type IconSet struct {
-	Icons   []Icon
-	TsMaker tsmakers.Maker
+	Icons []Icon
 }
 
 type Icon struct {

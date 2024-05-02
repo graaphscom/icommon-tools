@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/graaphscom/icommon/extractor/json"
-	"github.com/graaphscom/icommon/extractor/tsmakers"
+	"github.com/graaphscom/icommon/extractor/tscompiler"
 	"github.com/graaphscom/icommon/extractor/unitree"
 	"github.com/redis/rueidis"
 	"log"
@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_initial.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -106,11 +106,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	resultCh := make(chan tsmakers.MakeResult, iconsCount)
+	resultCh := make(chan tscompiler.TsResult, iconsCount)
 
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
 		for _, icon := range iconSet.Icons {
-			iconSet.TsMaker(icon.SrcFile, path.Join(manifest.TsResultPath, path.Join(segments...), icon.Name+".ts"), icon.Name, resultCh)
+			tscompiler.Compile(icon.SrcFile, path.Join(manifest.TsResultPath, path.Join(segments...), icon.Name+".ts"), icon.Name, resultCh)
 		}
 	})
 

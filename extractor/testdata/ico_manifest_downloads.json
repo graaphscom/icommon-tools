@@ -1,6 +1,6 @@
 {
   "redisUrl": "redis://localhost:6379",
-  "tsResultPath": "/Users/konradmikucki/Downloads",
+  "tsResultPath": "/Users/konradmikucki/projects/graaphscom/icommon",
   "vendorsClonePath": "/Users/konradmikucki/Downloads/icommon-src",
   "vendors": {
     "boxicons": {

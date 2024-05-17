@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_initial.json")
+	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -128,5 +128,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Total icons count: %d\ntsmakers success: %d\ntsmakers errors: %d", iconsCount, successCount, errCount)
+	fmt.Printf("Total icons count: %d\ntscompiler success: %d\ntscompiler errors: %d", iconsCount, successCount, errCount)
 }

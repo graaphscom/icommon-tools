@@ -18,7 +18,6 @@ type IconsTree struct {
 func (tree IconsTree) Traverse(
 	segments []string,
 	iconSetFn func(segments []string, iconSet IconSet) error,
-	subTreeFn func(segments []string) error,
 ) error {
 	var err error
 
@@ -29,10 +28,7 @@ func (tree IconsTree) Traverse(
 	if tree.SubTrees != nil {
 		for _, subTree := range *tree.SubTrees {
 			appendedSegment := append(segments, tree.Name)
-			if subTreeFn != nil {
-				err = errors.Join(err, subTreeFn(appendedSegment))
-			}
-			err = errors.Join(err, subTree.Traverse(appendedSegment, iconSetFn, subTreeFn))
+			err = errors.Join(err, subTree.Traverse(appendedSegment, iconSetFn))
 		}
 	}
 

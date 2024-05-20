@@ -78,9 +78,9 @@ func main() {
 	err = tree.Traverse(
 		[]string{},
 		func(segments []string, iconSet unitree.IconSet) error {
-			joinedPath := path.Join(manifest.TsResultPath, path.Join(segments...))
+			joinedPath := buildJsPackagePath(manifest.TsResultPath, segments)
 
-			if err := os.Mkdir(joinedPath, 0750); err != nil && !os.IsExist(err) {
+			if err := os.MkdirAll(joinedPath, 0750); err != nil && !os.IsExist(err) {
 				return err
 			}
 
@@ -90,12 +90,6 @@ func main() {
 			}
 
 			if err := tsIndexFileTmpl.Execute(file, iconSet.Icons); err != nil {
-				return err
-			}
-			return nil
-		},
-		func(segments []string) error {
-			if err := os.Mkdir(path.Join(manifest.TsResultPath, path.Join(segments...)), 0750); err != nil && !os.IsExist(err) {
 				return err
 			}
 			return nil
@@ -110,7 +104,7 @@ func main() {
 
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
 		for _, icon := range iconSet.Icons {
-			tscompiler.Compile(icon.SrcFile, path.Join(manifest.TsResultPath, path.Join(segments...), icon.Name+".ts"), icon.Name, resultCh)
+			tscompiler.Compile(icon.SrcFile, path.Join(buildJsPackagePath(manifest.TsResultPath, segments), icon.Name+".ts"), icon.Name, resultCh)
 		}
 	})
 
@@ -129,4 +123,14 @@ func main() {
 	}
 
 	fmt.Printf("Total icons count: %d\ntscompiler success: %d\ntscompiler errors: %d", iconsCount, successCount, errCount)
+}
+
+func buildJsPackagePath(base string, segments []string) string {
+	if len(segments) < 2 {
+		return base
+	}
+	if len(segments) == 2 {
+		return path.Join(base, segments[1], "src")
+	}
+	return path.Join(base, segments[1], "src", path.Join(segments[2:]...))
 }

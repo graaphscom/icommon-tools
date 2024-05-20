@@ -85,7 +85,7 @@ func (b iconsTreeBuilder) buildTree(metadata metadata.Store, src, rootName strin
 
 		icons = append(icons, Icon{
 			Name:    iconName,
-			SrcFile: path.Join(src, srcEntry.Name()),
+			SrcFile: path.Join(src, b.srcSuffix, srcEntry.Name()),
 			Tags:    tags,
 		})
 	}

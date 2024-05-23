@@ -84,12 +84,20 @@ func main() {
 				return err
 			}
 
-			file, err := os.OpenFile(path.Join(joinedPath, "index.ts"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			dTsFile, err := os.OpenFile(path.Join(joinedPath, "index.d.ts"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 			if err != nil {
 				return err
 			}
 
-			if err := tsIndexFileTmpl.Execute(file, iconSet.Icons); err != nil {
+			jsFile, err := os.OpenFile(path.Join(joinedPath, "index.js"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			if err != nil {
+				return err
+			}
+
+			if err := tsIndexFileTmpl.Execute(dTsFile, iconSet.Icons); err != nil {
+				return err
+			}
+			if err := tsIndexFileTmpl.Execute(jsFile, iconSet.Icons); err != nil {
 				return err
 			}
 			return nil
@@ -104,7 +112,7 @@ func main() {
 
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
 		for _, icon := range iconSet.Icons {
-			tscompiler.Compile(icon.SrcFile, path.Join(buildJsPackagePath(manifest.TsResultPath, segments), icon.Name+".ts"), icon.Name, resultCh)
+			tscompiler.Compile(icon.SrcFile, buildJsPackagePath(manifest.TsResultPath, segments), icon.Name, resultCh)
 		}
 	})
 
@@ -130,7 +138,7 @@ func buildJsPackagePath(base string, segments []string) string {
 		return base
 	}
 	if len(segments) == 2 {
-		return path.Join(base, segments[1], "src")
+		return path.Join(base, segments[1])
 	}
-	return path.Join(base, segments[1], "src", path.Join(segments[2:]...))
+	return path.Join(base, segments[1], path.Join(segments[2:]...))
 }

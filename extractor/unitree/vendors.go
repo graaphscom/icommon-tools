@@ -2,7 +2,7 @@ package unitree
 
 import (
 	"fmt"
-	"github.com/graaphscom/icommon/extractor/metadata"
+	"github.com/graaphscom/icommon-tools/extractor/metadata"
 	"os"
 	"path"
 	"regexp"

@@ -1,4 +1,4 @@
-module github.com/graaphscom/icommon/extractor
+module github.com/graaphscom/icommon-tools/extractor
 
 go 1.22
 

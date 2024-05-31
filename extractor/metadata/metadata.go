@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"errors"
-	"github.com/graaphscom/icommon/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/json"
 	"os"
 	"path"
 	"strings"

@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/graaphscom/icommon/extractor/json"
-	"github.com/graaphscom/icommon/extractor/tscompiler"
-	"github.com/graaphscom/icommon/extractor/unitree"
+	"github.com/graaphscom/icommon-tools/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/tscompiler"
+	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
 	"log"
 	"os"

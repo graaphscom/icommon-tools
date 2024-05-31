@@ -1,7 +1,10 @@
 package main
 
 import (
-	"github.com/graaphscom/icommon/extractor/json"
+	"errors"
+	"fmt"
+	"github.com/graaphscom/icommon-tools/extractor/cmd"
+	"github.com/graaphscom/icommon-tools/extractor/json"
 	"log"
 	"os"
 	"os/exec"
@@ -15,7 +18,7 @@ func main() {
 	}
 
 	err = os.Mkdir(manifest.VendorsClonePath, 0750)
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatalln(err)
 	}
 
@@ -25,22 +28,34 @@ func main() {
 		go cloneVendor(manifest.VendorsClonePath, vendorName, vendorManifest, cloneResults)
 	}
 
+	joinedErrors := make([]any, 0, len(manifest.VendorsClonePath))
+
 	for i := 0; i < len(manifest.Vendors); i++ {
-		cloneErr := <-cloneResults
-		if cloneErr != nil {
-			log.Fatalln(cloneErr)
+		cloneResult := <-cloneResults
+		if cloneResult != nil {
+			joinedErrors = append(joinedErrors, cloneResult)
 		}
+	}
+	for _, err := range joinedErrors {
+		fmt.Println(err)
+	}
+	if len(joinedErrors) > 0 {
+		os.Exit(1)
 	}
 }
 
 func cloneVendor(destPath, cloneDir string, vendorManifest json.VendorManifest, cloneResult chan<- error) {
-	cloneCmd := exec.Command("git", "clone", "-n", "--depth=1", "--filter=tree:0", vendorManifest.RepoUrl, cloneDir)
+	prefix := "[" + cloneDir + "] "
+	prefixedOut := cmd.NewPrefixedWriter(prefix, os.Stdout)
+	prefixedErr := cmd.NewPrefixedWriter(prefix, os.Stderr)
+
+	cloneCmd := exec.Command("git", "clone", "--no-tags", "-n", "--depth=1", "--filter=tree:0", vendorManifest.RepoUrl, cloneDir)
 	cloneCmd.Dir = destPath
-	cloneCmd.Stdout = os.Stdout
-	cloneCmd.Stderr = os.Stderr
+	cloneCmd.Stdout = prefixedOut
+	cloneCmd.Stderr = prefixedErr
 	err := cloneCmd.Run()
 	if err != nil {
-		cloneResult <- err
+		cloneResult <- cmd.NewPrefixedError(prefix, err)
 		return
 	}
 
@@ -52,21 +67,21 @@ func cloneVendor(destPath, cloneDir string, vendorManifest json.VendorManifest, 
 
 	sparseCheckoutCmd := exec.Command("git", "sparse-checkout", "set", "--no-cone", "/"+vendorManifest.IconsPath, metadataPath)
 	sparseCheckoutCmd.Dir = repoDir
-	sparseCheckoutCmd.Stdout = os.Stdout
-	sparseCheckoutCmd.Stderr = os.Stderr
+	sparseCheckoutCmd.Stdout = prefixedOut
+	sparseCheckoutCmd.Stderr = prefixedErr
 	err = sparseCheckoutCmd.Run()
 	if err != nil {
-		cloneResult <- err
+		cloneResult <- cmd.NewPrefixedError(prefix, err)
 		return
 	}
 
 	checkoutCmd := exec.Command("git", "checkout")
 	checkoutCmd.Dir = repoDir
-	checkoutCmd.Stdout = os.Stdout
-	checkoutCmd.Stderr = os.Stderr
+	checkoutCmd.Stdout = prefixedOut
+	checkoutCmd.Stderr = prefixedErr
 	err = checkoutCmd.Run()
 	if err != nil {
-		cloneResult <- err
+		cloneResult <- cmd.NewPrefixedError(prefix, err)
 		return
 	}
 

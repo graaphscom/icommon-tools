@@ -2,7 +2,7 @@ package unitree
 
 import (
 	"errors"
-	"github.com/graaphscom/icommon/extractor/metadata"
+	"github.com/graaphscom/icommon-tools/extractor/metadata"
 )
 
 type treeBuilder interface {

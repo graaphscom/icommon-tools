@@ -1,18 +1,43 @@
 package cmd
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 func NewPrefixedWriter(prefix string, wrapped io.Writer) PrefixedWriter {
-	return PrefixedWriter{prefix: []byte(prefix), wrapped: wrapped}
+	return PrefixedWriter{
+		prefix:        []byte(prefix),
+		wrapped:       wrapped,
+		lock:          &sync.Mutex{},
+		atStartOfLine: true,
+	}
 }
 
 type PrefixedWriter struct {
-	prefix  []byte
-	wrapped io.Writer
+	prefix        []byte
+	wrapped       io.Writer
+	lock          *sync.Mutex
+	atStartOfLine bool
 }
 
 func (pw PrefixedWriter) Write(p []byte) (int, error) {
-	_, err := pw.wrapped.Write(append(pw.prefix, p...))
+	pw.lock.Lock()
+	defer pw.lock.Unlock()
+
+	var toWrite []byte
+
+	for _, c := range p {
+		if pw.atStartOfLine {
+			toWrite = append(toWrite, pw.prefix...)
+		}
+
+		toWrite = append(toWrite, c)
+
+		pw.atStartOfLine = c == '\n'
+	}
+
+	_, err := pw.wrapped.Write(toWrite)
 	if err != nil {
 		return 0, err
 	}

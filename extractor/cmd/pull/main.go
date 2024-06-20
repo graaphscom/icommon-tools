@@ -39,7 +39,7 @@ func main() {
 }
 
 func pullVendor(destPath, cloneDir string, cloneResult chan<- error) {
-	pullCmd := exec.Command("git", "pull", "--depth=1", "-r", "--allow-unrelated-histories")
+	pullCmd := exec.Command("git", "pull", "--depth=1", "--rebase=true")
 	pullCmd.Dir = path.Join(destPath, cloneDir)
 	prefix := "[" + cloneDir + "] "
 	pullCmd.Stdout = cmd.NewPrefixedWriter(prefix, os.Stdout)

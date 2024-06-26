@@ -2,13 +2,13 @@ package unitree
 
 import (
 	"fmt"
-	"github.com/graaphscom/icommon-tools/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/metadata"
 	"os"
 	"path"
 )
 
-func BuildRootTree(manifest json.IcoManifest) (IconsTree, error) {
+func BuildRootTree(manifest js.IcoManifest) (IconsTree, error) {
 	subTrees := make([]IconsTree, 0, len(manifest.Vendors))
 
 	metadataStore := metadata.NewStore(manifest)

@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/graaphscom/icommon-tools/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/db"
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
 	"log"
-	"strings"
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -27,14 +27,22 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	existingKeys := make(map[string]bool)
+	uniTreeKeys := make(map[string]bool)
+	uniTreeFiles := make(map[string]bool)
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
+		packagePath := js.BuildPackagePath(manifest.TsResultPath, segments)
+
+		uniTreeFiles[js.IndexJs(packagePath)] = true
+		uniTreeFiles[js.IndexTs(packagePath)] = true
+
 		for _, icon := range iconSet.Icons {
-			existingKeys[strings.Join(append(segments, icon.Name), ":")] = true
+			uniTreeFiles[js.FileJs(packagePath, icon.Name)] = true
+			uniTreeFiles[js.FileTs(packagePath, icon.Name)] = true
+			uniTreeKeys[db.CreateIconKey(segments, icon.Name)] = true
 		}
 	})
 
-	obsoleteKeys, err := findObsoleteKeys(conn, existingKeys)
+	obsoleteKeys, err := findObsoleteKeys(conn, uniTreeKeys)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -42,7 +50,7 @@ func main() {
 
 }
 
-func findObsoleteKeys(conn rueidis.Client, existingKeys map[string]bool) ([]string, error) {
+func findObsoleteKeys(conn rueidis.Client, uniTreeKeys map[string]bool) ([]string, error) {
 	obsoleteKeys := make([]string, 0)
 
 	var cursor uint64
@@ -55,7 +63,7 @@ scan:
 
 	cursor = scanEntry.Cursor
 	for _, scannedKey := range scanEntry.Elements {
-		if _, ok := existingKeys[scannedKey]; !ok {
+		if _, ok := uniTreeKeys[scannedKey]; !ok {
 			obsoleteKeys = append(obsoleteKeys, scannedKey)
 		}
 	}

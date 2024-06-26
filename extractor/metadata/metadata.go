@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"errors"
-	"github.com/graaphscom/icommon-tools/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"os"
 	"path"
 	"strings"
@@ -17,7 +17,7 @@ func (S Store) GetFluentui(asset string) (Fluentui, error) {
 		return v, nil
 	}
 
-	result, err := json.ReadJson[Fluentui](
+	result, err := js.ReadJson[Fluentui](
 		path.Join(S.manifest.VendorsClonePath, "fluentui", S.manifest.Vendors["fluentui"].IconsPath, asset, "metadata.json"),
 	)
 
@@ -43,7 +43,7 @@ func (S Store) GetRemixicon() (Remixicon, error) {
 		return S.metadata.remixicon, nil
 	}
 
-	result, err := json.ReadJsonOmitProp[Remixicon](path.Join(S.manifest.VendorsClonePath, "remixicon", S.manifest.Vendors["remixicon"].MetadataPath), "_comment")
+	result, err := js.ReadJsonOmitProp[Remixicon](path.Join(S.manifest.VendorsClonePath, "remixicon", S.manifest.Vendors["remixicon"].MetadataPath), "_comment")
 
 	if err != nil {
 		var empty Remixicon
@@ -64,7 +64,7 @@ func (S Store) GetUnicons(variant string) (UniconsQuickAccess, error) {
 		return v, nil
 	}
 
-	jsonContents, err := json.ReadJson[unicons](
+	jsonContents, err := js.ReadJson[unicons](
 		path.Join(S.manifest.VendorsClonePath, "unicons", S.manifest.Vendors["unicons"].MetadataPath, strings.Join([]string{variant, ".json"}, "")),
 	)
 
@@ -82,12 +82,12 @@ func (S Store) GetUnicons(variant string) (UniconsQuickAccess, error) {
 	return result, nil
 }
 
-func singleFile[T Fontawesome | Octicons](cacheEntry *T, manifest json.IcoManifest, vendor string) (T, error) {
+func singleFile[T Fontawesome | Octicons](cacheEntry *T, manifest js.IcoManifest, vendor string) (T, error) {
 	if *cacheEntry != nil {
 		return *cacheEntry, nil
 	}
 
-	result, err := json.ReadJson[T](path.Join(manifest.VendorsClonePath, vendor, manifest.Vendors[vendor].MetadataPath))
+	result, err := js.ReadJson[T](path.Join(manifest.VendorsClonePath, vendor, manifest.Vendors[vendor].MetadataPath))
 
 	if err != nil {
 		var empty T
@@ -99,13 +99,13 @@ func singleFile[T Fontawesome | Octicons](cacheEntry *T, manifest json.IcoManife
 	return result, nil
 }
 
-func NewStore(manifest json.IcoManifest) Store {
+func NewStore(manifest js.IcoManifest) Store {
 	return Store{manifest: manifest, metadata: &metadata{}}
 }
 
 type Store struct {
 	metadata *metadata
-	manifest json.IcoManifest
+	manifest js.IcoManifest
 }
 
 type metadata struct {

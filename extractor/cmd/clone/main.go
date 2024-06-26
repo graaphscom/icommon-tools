@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/graaphscom/icommon-tools/extractor/cmd"
-	"github.com/graaphscom/icommon-tools/extractor/json"
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"log"
 	"os"
 	"os/exec"
@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -44,7 +44,7 @@ func main() {
 	}
 }
 
-func cloneVendor(destPath, cloneDir string, vendorManifest json.VendorManifest, cloneResult chan<- error) {
+func cloneVendor(destPath, cloneDir string, vendorManifest js.VendorManifest, cloneResult chan<- error) {
 	prefix := "[" + cloneDir + "] "
 	prefixedOut := cmd.NewPrefixedWriter(prefix, os.Stdout)
 	prefixedErr := cmd.NewPrefixedWriter(prefix, os.Stderr)

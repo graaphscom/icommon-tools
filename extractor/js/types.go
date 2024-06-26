@@ -1,18 +1,18 @@
-package tscompiler
+package js
 
 import "encoding/json"
 
-type TsResult struct {
-	Success *TsDetails
-	Err     *TsError
+type CompileResult struct {
+	Success *CompileDetails
+	Err     *CompileError
 }
 
-type TsError struct {
-	Details TsDetails
+type CompileError struct {
+	Details CompileDetails
 	Err     error
 }
 
-type TsDetails struct {
+type CompileDetails struct {
 	Dest string
 }
 

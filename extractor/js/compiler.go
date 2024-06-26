@@ -1,18 +1,17 @@
-package tscompiler
+package js
 
 import (
 	"encoding/json"
 	"encoding/xml"
 	"io"
 	"os"
-	"path"
 )
 
-func Compile(src, destDir, iconName string, resultCh chan<- TsResult) {
+func Compile(src, destDir, iconName string, resultCh chan<- CompileResult) {
 	srcFile, err := os.Open(src)
 	defer srcFile.Close()
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		return
 	}
 
@@ -29,7 +28,7 @@ func Compile(src, destDir, iconName string, resultCh chan<- TsResult) {
 			break
 		}
 		if err != nil {
-			resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+			resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		}
 
 		if startElement, ok := token.(xml.StartElement); ok {
@@ -55,35 +54,35 @@ func Compile(src, destDir, iconName string, resultCh chan<- TsResult) {
 
 	jsonEncoded, err := json.MarshalIndent(curr.node, "", "  ")
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 	}
 
-	destJsFile, err := os.OpenFile(path.Join(destDir, iconName+".js"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	destJsFile, err := os.OpenFile(FileJs(destDir, iconName), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	defer destJsFile.Close()
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		return
 	}
 
 	_, err = destJsFile.Write(append([]byte(`export var `+iconName+` = `), jsonEncoded...))
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		return
 	}
 
-	destTsFile, err := os.OpenFile(path.Join(destDir, iconName+".d.ts"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	destTsFile, err := os.OpenFile(FileTs(destDir, iconName), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	defer destTsFile.Close()
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		return
 	}
 
 	_, err = destTsFile.Write([]byte(`import { IcommonNode } from "@icommon/components/types";
 export declare const ` + iconName + `: IcommonNode;`))
 	if err != nil {
-		resultCh <- TsResult{Err: &TsError{Details: TsDetails{Dest: destDir}, Err: err}}
+		resultCh <- CompileResult{Err: &CompileError{Details: CompileDetails{Dest: destDir}, Err: err}}
 		return
 	}
 
-	resultCh <- TsResult{Success: &TsDetails{Dest: destDir}}
+	resultCh <- CompileResult{Success: &CompileDetails{Dest: destDir}}
 }

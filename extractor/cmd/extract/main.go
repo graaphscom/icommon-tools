@@ -3,19 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/graaphscom/icommon-tools/extractor/json"
-	"github.com/graaphscom/icommon-tools/extractor/tscompiler"
+	"github.com/graaphscom/icommon-tools/extractor/db"
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
 	"log"
 	"os"
-	"path"
-	"strings"
 	"text/template"
 )
 
 func main() {
-	manifest, err := json.ReadJson[json.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -43,24 +41,13 @@ func main() {
 	commandsIdx := 0
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
 		for _, icon := range iconSet.Icons {
-			commands[commandsIdx] = conn.B().Hset().
-				Key(strings.Join(append(segments, icon.Name), ":")).
-				FieldValue().
-				FieldValue("searchTags", strings.Join(icon.Tags.Search, ",")).
-				FieldValue("visualTags", strings.Join(icon.Tags.Visual, ",")).
-				Build()
+			commands[commandsIdx] = db.CreateIconEntry(conn.B(), segments, icon)
 			commandsIdx++
 		}
 	})
 
 	ctx := context.Background()
-	commands[commandsIdx] = conn.B().FtCreate().
-		Index("icommon").
-		Prefix(1).Prefix("icommon:").
-		Schema().
-		FieldName("searchTags").Text().
-		FieldName("visualTags").Tag().
-		Build()
+	commands[commandsIdx] = db.CreateSearchIndex(conn.B())
 
 	conn.DoMulti(ctx, commands...)
 
@@ -78,18 +65,18 @@ func main() {
 	err = tree.Traverse(
 		[]string{},
 		func(segments []string, iconSet unitree.IconSet) error {
-			joinedPath := buildJsPackagePath(manifest.TsResultPath, segments)
+			packagePath := js.BuildPackagePath(manifest.TsResultPath, segments)
 
-			if err := os.MkdirAll(joinedPath, 0750); err != nil && !os.IsExist(err) {
+			if err := os.MkdirAll(packagePath, 0750); err != nil && !os.IsExist(err) {
 				return err
 			}
 
-			dTsFile, err := os.OpenFile(path.Join(joinedPath, "index.d.ts"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			dTsFile, err := os.OpenFile(js.IndexTs(packagePath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 			if err != nil {
 				return err
 			}
 
-			jsFile, err := os.OpenFile(path.Join(joinedPath, "index.js"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			jsFile, err := os.OpenFile(js.IndexJs(packagePath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 			if err != nil {
 				return err
 			}
@@ -108,11 +95,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	resultCh := make(chan tscompiler.TsResult, iconsCount)
+	resultCh := make(chan js.CompileResult, iconsCount)
 
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
+		packagePath := js.BuildPackagePath(manifest.TsResultPath, segments)
 		for _, icon := range iconSet.Icons {
-			tscompiler.Compile(icon.SrcFile, buildJsPackagePath(manifest.TsResultPath, segments), icon.Name, resultCh)
+			js.Compile(icon.SrcFile, packagePath, icon.Name, resultCh)
 		}
 	})
 
@@ -131,14 +119,4 @@ func main() {
 	}
 
 	fmt.Printf("Total icons count: %d\ntscompiler success: %d\ntscompiler errors: %d", iconsCount, successCount, errCount)
-}
-
-func buildJsPackagePath(base string, segments []string) string {
-	if len(segments) < 2 {
-		return base
-	}
-	if len(segments) == 2 {
-		return path.Join(base, segments[1])
-	}
-	return path.Join(base, segments[1], path.Join(segments[2:]...))
 }

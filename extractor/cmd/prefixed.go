@@ -34,7 +34,7 @@ func (pw PrefixedWriter) Write(p []byte) (int, error) {
 
 		toWrite = append(toWrite, c)
 
-		pw.atStartOfLine = c == '\n'
+		pw.atStartOfLine = c == '\n' || c == '\r'
 	}
 
 	_, err := pw.wrapped.Write(toWrite)

@@ -1,17 +1,6 @@
 import { Icommon } from '@icommon/components/icommon';
-import { bxl500px, bxl99designs, bxlAdobe } from '@icommon/boxicons/logos';
-import { bxAbacus, bxAccessibility, bxAlarm } from '@icommon/boxicons/regular';
-import {
-  bxsAddToQueue,
-  bxsAdjust,
-  bxsAdjustAlt,
-} from '@icommon/boxicons/solid';
-import { activity, ban, bag } from '@icommon/bytesize';
-import { key32Filled } from '@icommon/fluentui/key';
-import { airplaneLanding24Filled } from '@icommon/fluentui/airplaneLanding';
-import { addSquareMultiple24Filled } from '@icommon/fluentui/addSquareMultiple';
-import { node, adn, aws } from '@icommon/fontawesome/brands';
-import { map, bell, eye } from '@icommon/fontawesome/regular';
+import { adn, aws, node } from '@icommon/fontawesome/brands';
+import { bell, eye, map } from '@icommon/fontawesome/regular';
 import {
   addressBook,
   addressCard,
@@ -27,6 +16,7 @@ import {
   notificationImportant24px,
   warningSharp24px,
 } from '@icommon/material/alert';
+import { moveDownSharp24px } from '@icommon/material/editor';
 import { arrowBoth24, blocked24, briefcase24 } from '@icommon/octicons';
 import { activityLog, borderDashed, button } from '@icommon/radixui';
 import {
@@ -42,7 +32,17 @@ import {
 import { __0Plus, __12Plus, __500px } from '@icommon/unicons/line';
 import { angleDoubleDown, apps, bookmark } from '@icommon/unicons/monochrome';
 
-export default function Home() {
+export default async function Home() {
+  const boxiconsLogos = await import('@icommon/boxicons/logos');
+  const boxiconsRegular = await import('@icommon/boxicons/regular');
+  const boxiconsSolid = await import('@icommon/boxicons/solid');
+  const bytesize = await import('@icommon/bytesize');
+  // const fluentui = await import('@icommon/fluentui');
+  const fontawesomeSolid = await import('@icommon/fontawesome/solid');
+  const fontawesomeRegular = await import('@icommon/fontawesome/regular');
+  const fontawesomeBrands = await import('@icommon/fontawesome/brands');
+  const octicons = await import('@icommon/octicons');
+
   return (
     <section>
       <h1>icommon</h1>
@@ -50,76 +50,64 @@ export default function Home() {
         <h2>boxicons</h2>
         <section>
           <h3>logos</h3>
-          <Icommon node={bxl99designs} />
-          <Icommon node={bxl500px} />
-          <Icommon node={bxlAdobe} />
+          {Object.values(boxiconsLogos).map((l, idx) => (
+            <Icommon node={l} key={idx} />
+          ))}
         </section>
         <section>
           <h3>regular</h3>
-          <Icommon node={bxAbacus} />
-          <Icommon node={bxAccessibility} />
-          <Icommon node={bxAlarm} />
+          {Object.values(boxiconsRegular).map((l, idx) => (
+            <Icommon node={l} key={idx} />
+          ))}
         </section>
         <section>
           <h3>solid</h3>
-          <Icommon node={bxsAddToQueue} />
-          <Icommon node={bxsAdjust} />
-          <Icommon node={bxsAdjustAlt} />
+          {Object.values(boxiconsSolid).map((l, idx) => (
+            <Icommon node={l} key={idx} />
+          ))}
         </section>
       </section>
       <section>
         <h2>bytesize</h2>
-        <Icommon node={activity} />
-        <Icommon node={bag} />
-        <Icommon node={ban} />
+        {Object.values(bytesize).map((l, idx) => (
+          <Icommon node={l} key={idx} />
+        ))}
       </section>
       <section>
         <h2>fluentui</h2>
-        <Icommon node={key32Filled} />
-        <Icommon node={airplaneLanding24Filled} />
-        <Icommon node={addSquareMultiple24Filled} />
+        {/*{Object.values(fluentui).map((l, idx) => (*/}
+        {/*  <Icommon node={l} key={idx} />*/}
+        {/*))}*/}
       </section>
       <section>
         <h2>fontawesome</h2>
         <section>
           <h3>brands</h3>
-          <Icommon node={node} width="32" height="32" />
-          <Icommon node={adn} width="32" height="32" />
-          <Icommon node={aws} width="32" height="32" />
+          {Object.values(fontawesomeBrands).map((l, idx) => (
+            <Icommon node={l} key={idx} width="32" height="32" />
+          ))}
         </section>
         <section>
           <h3>regular</h3>
-          <Icommon node={map} width="32" height="32" />
-          <Icommon node={bell} width="32" height="32" />
-          <Icommon node={eye} width="32" height="32" />
+          {Object.values(fontawesomeRegular).map((l, idx) => (
+            <Icommon node={l} key={idx} width="32" height="32" />
+          ))}
         </section>
         <section>
           <h3>solid</h3>
-          <Icommon node={addressBook} width="32" height="32" />
-          <Icommon node={addressCard} width="32" height="32" />
-          <Icommon node={alignCenter} width="32" height="32" />
+          {Object.values(fontawesomeSolid).map((l, idx) => (
+            <Icommon node={l} key={idx} width="32" height="32" />
+          ))}
         </section>
       </section>
       <section>
         <h2>material</h2>
-        <section>
-          <h3>action</h3>
-          <Icommon node={__3dRotation24px} />
-          <Icommon node={accessibleForward24px} />
-          <Icommon node={accountBalanceSharp24px} />
-        </section>
-        <section>
-          <h3>alert</h3>
-          <Icommon node={addAlert24px} />
-          <Icommon node={notificationImportant24px} />
-          <Icommon node={warningSharp24px} />
-        </section>
       </section>
       <section>
         <h2>octicons</h2>
-        <Icommon node={arrowBoth24} />
-        <Icommon node={blocked24} />
-        <Icommon node={briefcase24} />
+        {Object.values(octicons).map((l, idx) => (
+          <Icommon node={l} key={idx} />
+        ))}
       </section>
       <section>
         <h2>radixui</h2>

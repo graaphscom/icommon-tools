@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/graaphscom/icommon-tools/extractor/db"
 	"github.com/graaphscom/icommon-tools/extractor/js"
@@ -9,10 +10,12 @@ import (
 	"github.com/redis/rueidis"
 	"log"
 	"os"
-	"text/template"
 )
 
 func main() {
+	noTrunc := flag.Bool("no-trunc", false, "don't write a file when it already exists")
+	flag.Parse()
+
 	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
 	tree, err := unitree.BuildRootTree(manifest)
 
@@ -55,11 +58,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	tsIndexFileTmpl, err := template.New("tsIndexFileTpl").Parse(`{{range .}}export { {{.Name}} } from "./{{.Name}}";
-{{end}}`)
-
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	openFlag := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	if *noTrunc {
+		openFlag = os.O_WRONLY | os.O_CREATE | os.O_EXCL
 	}
 
 	err = tree.Traverse(
@@ -71,22 +76,21 @@ func main() {
 				return err
 			}
 
-			dTsFile, err := os.OpenFile(js.IndexTs(packagePath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			var iconsName []struct{ Name string }
+			for _, icon := range iconSet.Icons {
+				iconsName = append(iconsName, struct{ Name string }{icon.Name})
+			}
+
+			err = js.CompileIndex(js.IndexTs(packagePath), openFlag, iconsName)
 			if err != nil {
 				return err
 			}
 
-			jsFile, err := os.OpenFile(js.IndexJs(packagePath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			err = js.CompileIndex(js.IndexJs(packagePath), openFlag, iconsName)
 			if err != nil {
 				return err
 			}
 
-			if err := tsIndexFileTmpl.Execute(dTsFile, iconSet.Icons); err != nil {
-				return err
-			}
-			if err := tsIndexFileTmpl.Execute(jsFile, iconSet.Icons); err != nil {
-				return err
-			}
 			return nil
 		},
 	)
@@ -100,7 +104,7 @@ func main() {
 	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
 		packagePath := js.BuildPackagePath(manifest.TsResultPath, segments)
 		for _, icon := range iconSet.Icons {
-			js.Compile(icon.SrcFile, packagePath, icon.Name, resultCh)
+			js.Compile(icon.SrcFile, packagePath, icon.Name, openFlag, resultCh)
 		}
 	})
 

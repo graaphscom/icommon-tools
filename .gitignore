@@ -1,4 +1,6 @@
 .idea
 extractor/testdata/successful-result
+extractor/js/testdata/moveDownSharp24.js
+extractor/js/testdata/moveDownSharp24.d.ts
 searchui/app/icommon
 .DS_Store

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/metadata"
+	"github.com/graaphscom/icommon-tools/extractor/strcase"
 	"os"
 	"path"
 	"regexp"
@@ -32,7 +33,7 @@ var treeBuilders = map[string]treeBuilder{
 	"fluentui": categoriesTreeBuilder{
 		iconsTreeBuilder: iconsTreeBuilder{
 			iconNameConverter: func(in string) string {
-				return fixVarNameFirstChar(toCamelCase(strings.TrimPrefix(strings.TrimSuffix(in, ".svg"), "ic_fluent"), snakeCaseRegexp))
+				return fixVarNameFirstChar(strcase.ToCamel(strings.TrimPrefix(strings.TrimSuffix(in, ".svg"), "ic_fluent"), strcase.SnakeRegexp))
 			},
 			treeNameConverter: treeNameSpaceConverter,
 			srcSuffix:         "SVG",
@@ -198,6 +199,14 @@ func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName stri
 		}
 	}
 
+	for i := 0; i < len(icons); i++ {
+		for j := i + 1; j < len(icons); j++ {
+			if icons[i].Name == icons[j].Name {
+				icons = append(icons[:i], icons[i+1:]...)
+			}
+		}
+	}
+
 	return IconsTree{
 		Name: rootName,
 		IconSet: &IconSet{
@@ -209,31 +218,21 @@ func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName stri
 type materialIconsTreeBuilder struct{}
 
 func iconNameKebabCaseConverter(in string) string {
-	return fixReservedWords(fixVarNameFirstChar(toCamelCase(strings.TrimSuffix(in, ".svg"), kebabCaseRegexp)))
+	return fixReservedWords(fixVarNameFirstChar(strcase.ToCamel(strings.TrimSuffix(in, ".svg"), strcase.KebabRegexp)))
 }
 
 func iconNameSnakeCaseConverter(in string) string {
-	return fixVarNameFirstChar(toCamelCase(strings.TrimSuffix(in, ".svg"), snakeCaseRegexp))
+	return fixVarNameFirstChar(strcase.ToCamel(strings.TrimSuffix(in, ".svg"), strcase.SnakeRegexp))
 }
 
 func treeNameSpaceConverter(in string) string {
-	return toCamelCase(in, spaceCaseRegexp)
+	return strcase.ToCamel(in, strcase.SpaceRegexp)
 }
 
 func tagsExtractorKebabCase(_ metadata.Store, _, rawName string) (IconTags, error) {
 	return IconTags{Search: []string{strings.ReplaceAll(strings.TrimSuffix(rawName, ".svg"), "-", " ")}}, nil
 }
 
-func toCamelCase(varName string, initialCaseRegexp *regexp.Regexp) string {
-	converted := initialCaseRegexp.ReplaceAllStringFunc(varName, func(s string) string {
-		return strings.ToUpper(string(s[1]))
-	})
-	return strings.ToLower(string(converted[0])) + converted[1:]
-}
-
-var kebabCaseRegexp, _ = regexp.Compile(`-\w`)
-var snakeCaseRegexp, _ = regexp.Compile(`_\w`)
-var spaceCaseRegexp, _ = regexp.Compile(` \w`)
 var firstHyphenRegexp, _ = regexp.Compile(`^\w*-`)
 var fluentuiTagsRegexp, _ = regexp.Compile(`ic_fluent_(.*?)_(\d*)?_(regular|filled|light)?(_ltr)?(_rtl)?.svg`)
 var octiconsTagsRegexp, _ = regexp.Compile(`(.*?)(-circle)?(-fill)?(-\d*)?.svg`)

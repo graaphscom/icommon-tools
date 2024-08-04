@@ -1,0 +1,53 @@
+{
+  "language": "en",
+  "messages": [
+    {
+      "id": "Successfully deleted {DelKeysCount} redis keys",
+      "message": "Successfully deleted {DelKeysCount} redis keys",
+      "translation": {
+        "select": {
+          "feature": "plural",
+          "arg": "DelKeysCount",
+          "cases": {
+            "one": "Successfully deleted one redis key",
+            "other": "Successfully deleted {DelKeysCount} redis keys"
+          }
+        }
+      },
+      "placeholders": [
+        {
+          "id": "DelKeysCount",
+          "string": "%[1]d",
+          "type": "int",
+          "underlyingType": "int",
+          "argNum": 1,
+          "expr": "delKeysCount"
+        }
+      ]
+    },
+    {
+      "id": "Successfully deleted {LenobsoleteFiles} files",
+      "message": "Successfully deleted {LenobsoleteFiles} files",
+      "translation": {
+        "select": {
+          "feature": "plural",
+          "arg": "LenobsoleteFiles",
+          "cases": {
+            "one": "Successfully deleted one file",
+            "other": "Successfully deleted {LenobsoleteFiles} files"
+          }
+        }
+      },
+      "placeholders": [
+        {
+          "id": "LenobsoleteFiles",
+          "string": "%[1]d",
+          "type": "int",
+          "underlyingType": "int",
+          "argNum": 1,
+          "expr": "len(obsoleteFiles)"
+        }
+      ]
+    }
+  ]
+}

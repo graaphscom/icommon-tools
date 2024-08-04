@@ -1,47 +1,76 @@
 {
   "redisUrl": "redis://localhost:6379",
-  "tsResultPath": "/Users/konradmikucki/projects/graaphscom/icommon/packages",
-  "vendorsClonePath": "/Users/konradmikucki/projects/graaphscom/icommon/clone",
+  "tsResultPath": "/Users/kmikucki/projects/icommon/packages",
+  "vendorsClonePath": "/Users/kmikucki/projects/icommon/clone",
   "vendors": {
     "boxicons": {
       "repoUrl": "git@github.com:atisawd/boxicons",
-      "iconsPath": "svg"
+      "iconsPath": "svg",
+      "license": "(CC-BY-4.0 OR OFL-1.1 OR MIT)",
+      "licenseUrl": "",
+      "homepage": "https://github.com/atisawd/boxicons",
+      "funding": "https://opencollective.com/boxicons"
     },
     "bytesize": {
       "repoUrl": "git@github.com:danklammer/bytesize-icons",
-      "iconsPath": "dist/icons"
+      "iconsPath": "dist/icons",
+      "license": "MIT",
+      "licenseUrl": "",
+      "homepage": "https://github.com/danklammer/bytesize-icons#readme"
     },
     "fluentui": {
       "repoUrl": "git@github.com:microsoft/fluentui-system-icons",
-      "iconsPath": "assets"
+      "iconsPath": "assets",
+      "license": "MIT",
+      "licenseUrl": "",
+      "homepage": "https://github.com/microsoft/fluentui-system-icons"
     },
     "fontawesome": {
       "repoUrl": "git@github.com:FortAwesome/Font-Awesome",
       "iconsPath": "svgs",
-      "metadataPath": "metadata/icons.json"
+      "metadataPath": "metadata/icons.json",
+      "license": "(CC-BY-4.0 AND OFL-1.1 AND MIT)",
+      "licenseUrl": "",
+      "homepage": "https://fontawesome.com"
     },
     "material": {
       "repoUrl": "git@github.com:google/material-design-icons.git",
-      "iconsPath": "src"
+      "iconsPath": "src",
+      "license": "Apache-2.0 license",
+      "licenseUrl": "",
+      "homepage": "https://github.com/google/material-design-icons"
     },
     "octicons": {
       "repoUrl": "git@github.com:primer/octicons",
       "iconsPath": "icons",
-      "metadataPath": "keywords.json"
+      "metadataPath": "keywords.json",
+      "license": "MIT",
+      "licenseUrl": "",
+      "homepage": "https://github.com/primer/octicons"
     },
     "radixui": {
       "repoUrl": "git@github.com:radix-ui/icons",
-      "iconsPath": "packages/radix-icons/icons"
+      "iconsPath": "packages/radix-icons/icons",
+      "license": "MIT",
+      "licenseUrl": "",
+      "homepage": "https://github.com/radix-ui/icons"
     },
     "remixicon": {
       "repoUrl": "git@github.com:Remix-Design/RemixIcon",
       "iconsPath": "icons",
-      "metadataPath": "tags.json"
+      "metadataPath": "tags.json",
+      "license": "Apache-2.0",
+      "licenseUrl": "",
+      "homepage": "https://remixicon.com",
+      "funding": "https://remixicon.com/support-us"
     },
     "unicons": {
       "repoUrl": "git@github.com:Iconscout/unicons",
       "iconsPath": "svg",
-      "metadataPath": "json"
+      "metadataPath": "json",
+      "license": "IconScout Simple License",
+      "licenseUrl": "",
+      "homepage": "https://iconscout.com/unicons"
     }
   }
 }

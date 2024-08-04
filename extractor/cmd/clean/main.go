@@ -8,7 +8,8 @@ import (
 	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
-	"golang.org/x/text/feature/plural"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"io/fs"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ import (
 )
 
 func main() {
-	//message.Set(language.English, )
+	printer := message.NewPrinter(language.Polish)
 
 	dryRun := flag.Bool("dry-run", false, "don't perform actual clean, print redis keys and files to be deleted instead")
 	flag.Parse()
@@ -52,7 +53,7 @@ func main() {
 	}
 
 	if len(obsoleteKeys) == 0 {
-		fmt.Println("No redis keys to delete")
+		fmt.Println("No redis keys to delete\n")
 	} else {
 		fmt.Println("Redis keys to delete:")
 		for _, obsoleteKey := range obsoleteKeys {
@@ -79,10 +80,11 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		plural.Selectf(int(delKeysCount), "",
-			plural.One, "Successfully deleted one redis key\n",
-			plural.Other, "Successfully deleted %1[d] redis key\n",
-		)
+
+		_, err = printer.Printf("Successfully deleted %d redis keys\n", delKeysCount)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	if len(obsoleteFiles) > 0 {
@@ -92,7 +94,11 @@ func main() {
 				log.Fatalln(err)
 			}
 		}
-		fmt.Printf("Successfully deleted %d files\n", len(obsoleteFiles))
+
+		_, err = printer.Printf("Successfully deleted %d files\n", len(obsoleteFiles))
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 }
 

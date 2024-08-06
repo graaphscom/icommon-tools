@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
 	"strings"
@@ -12,6 +13,17 @@ func CreateIconEntry(builder rueidis.Builder, segments []string, icon unitree.Ic
 		FieldValue().
 		FieldValue("searchTags", strings.Join(icon.Tags.Search, ",")).
 		FieldValue("visualTags", strings.Join(icon.Tags.Visual, ",")).
+		Build()
+}
+
+func CreateManifestEntry(builder rueidis.Builder, vendorName string, manifest js.VendorManifest) rueidis.Completed {
+	return builder.Hset().
+		Key("icommon-manifest:"+vendorName).
+		FieldValue().
+		FieldValue("funding", manifest.Funding).
+		FieldValue("homepage", manifest.Homepage).
+		FieldValue("license", manifest.License).
+		FieldValue("licenseUrl", manifest.LicenseUrl).
 		Build()
 }
 

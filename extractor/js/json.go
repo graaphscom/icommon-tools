@@ -18,6 +18,10 @@ type VendorManifest struct {
 	RepoUrl      string
 	IconsPath    string
 	MetadataPath string
+	License      string
+	LicenseUrl   string
+	Homepage     string
+	Funding      string
 }
 
 func ReadJsonOmitProp[T any](path, prop string) (T, error) {

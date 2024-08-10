@@ -199,14 +199,6 @@ func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName stri
 		}
 	}
 
-	for i := 0; i < len(icons); i++ {
-		for j := i + 1; j < len(icons); j++ {
-			if icons[i].Name == icons[j].Name {
-				icons = append(icons[:i], icons[i+1:]...)
-			}
-		}
-	}
-
 	return IconsTree{
 		Name: rootName,
 		IconSet: &IconSet{

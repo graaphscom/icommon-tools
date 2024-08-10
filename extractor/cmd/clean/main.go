@@ -18,12 +18,13 @@ import (
 )
 
 func main() {
-	printer := message.NewPrinter(language.Polish)
+	printer := message.NewPrinter(language.English)
 
+	manifestPath := flag.String("manifest", "", "path to the icons manifest file")
 	dryRun := flag.Bool("dry-run", false, "don't perform actual clean, print redis keys and files to be deleted instead")
 	flag.Parse()
 
-	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := js.ReadJson[js.IcoManifest](*manifestPath)
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -42,7 +43,7 @@ func main() {
 
 	uniTreeKeys, uniTreeFiles := flattenUniTree(tree, manifest.TsResultPath)
 
-	obsoleteKeys, err := findObsoleteKeys(conn, uniTreeKeys)
+	obsoleteKeys, err := db.FindObsoleteKeys(conn, uniTreeKeys)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -120,30 +121,6 @@ func flattenUniTree(tree unitree.IconsTree, tsResultPath string) (uniTreeKeys, u
 	})
 
 	return
-}
-
-func findObsoleteKeys(conn rueidis.Client, uniTreeKeys map[string]bool) ([]string, error) {
-	obsoleteKeys := make([]string, 0)
-
-	var cursor uint64
-
-scan:
-	scanEntry, err := conn.Do(context.Background(), conn.B().Scan().Cursor(cursor).Build()).AsScanEntry()
-	if err != nil {
-		return obsoleteKeys, err
-	}
-
-	cursor = scanEntry.Cursor
-	for _, scannedKey := range scanEntry.Elements {
-		if _, ok := uniTreeKeys[scannedKey]; !ok {
-			obsoleteKeys = append(obsoleteKeys, scannedKey)
-		}
-	}
-
-	if scanEntry.Cursor == 0 {
-		return obsoleteKeys, nil
-	}
-	goto scan
 }
 
 func findObsoleteFiles(manifest js.IcoManifest, uniTreeFiles map[string]bool) ([]string, error) {

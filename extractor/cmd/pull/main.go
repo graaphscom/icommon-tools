@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/graaphscom/icommon-tools/extractor/cmd"
 	"github.com/graaphscom/icommon-tools/extractor/js"
@@ -11,7 +12,10 @@ import (
 )
 
 func main() {
-	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifestPath := flag.String("manifest", "", "path to the icons manifest file")
+	flag.Parse()
+
+	manifest, err := js.ReadJson[js.IcoManifest](*manifestPath)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -10,13 +10,15 @@ import (
 	"github.com/redis/rueidis"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
+	manifestPath := flag.String("manifest", "", "path to the icons manifest file")
 	noTrunc := flag.Bool("no-trunc", false, "don't write a file when it already exists")
 	flag.Parse()
 
-	manifest, err := js.ReadJson[js.IcoManifest]("testdata/ico_manifest_downloads.json")
+	manifest, err := js.ReadJson[js.IcoManifest](*manifestPath)
 	tree, err := unitree.BuildRootTree(manifest)
 
 	if err != nil {
@@ -48,6 +50,20 @@ func main() {
 			commandsIdx++
 		}
 	})
+
+	caseInsensitiveOccurrences := make(map[string][]string)
+	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
+		for _, icon := range iconSet.Icons {
+			iconLowerNameFullPath := strings.Join(append(segments, strings.ToLower(icon.Name)), ":")
+			caseInsensitiveOccurrences[iconLowerNameFullPath] = append(caseInsensitiveOccurrences[iconLowerNameFullPath], icon.Name)
+		}
+	})
+	var duplicates [][]string
+	for _, cases := range caseInsensitiveOccurrences {
+		if len(cases) > 1 {
+			duplicates = append(duplicates, cases)
+		}
+	}
 
 	ctx := context.Background()
 	commands[commandsIdx] = db.CreateSearchIndex(conn.B())

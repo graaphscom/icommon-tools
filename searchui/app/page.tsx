@@ -31,8 +31,13 @@ import {
 } from '@icommon/remixicon/design';
 import { __0Plus, __12Plus, __500px } from '@icommon/unicons/line';
 import { angleDoubleDown, apps, bookmark } from '@icommon/unicons/monochrome';
+import { redisClient } from '@/db';
 
 export default async function Home() {
+  await (async () => {
+    const resp = await redisClient.scan();
+    console.log(resp);
+  })();
   const boxiconsLogos = await import('@icommon/boxicons/logos');
   const boxiconsRegular = await import('@icommon/boxicons/regular');
   const boxiconsSolid = await import('@icommon/boxicons/solid');

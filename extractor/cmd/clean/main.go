@@ -4,17 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io/fs"
+	"log"
+	"os"
+	"path"
+	"path/filepath"
+
 	"github.com/graaphscom/icommon-tools/extractor/db"
 	"github.com/graaphscom/icommon-tools/extractor/js"
 	"github.com/graaphscom/icommon-tools/extractor/unitree"
 	"github.com/redis/rueidis"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"io/fs"
-	"log"
-	"os"
-	"path"
-	"path/filepath"
 )
 
 func main() {
@@ -25,8 +26,11 @@ func main() {
 	flag.Parse()
 
 	manifest, err := js.ReadJson[js.IcoManifest](*manifestPath)
-	tree, err := unitree.BuildRootTree(manifest)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
+	tree, err := unitree.BuildRootTree(manifest)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -1,7 +1,7 @@
 {
   "redisUrl": "redis://localhost:6379",
-  "tsResultPath": "/Users/kmikucki/projects/icommon/packages",
-  "vendorsClonePath": "/Users/kmikucki/projects/icommon/clone",
+  "tsResultPath": "/Users/konradmikucki/projects/graaphscom/icommon/packages",
+  "vendorsClonePath": "/Users/konradmikucki/projects/graaphscom/icommon/clone",
   "vendors": {
     "boxicons": {
       "repoUrl": "git@github.com:atisawd/boxicons",

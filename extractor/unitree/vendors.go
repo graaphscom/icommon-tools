@@ -2,14 +2,15 @@ package unitree
 
 import (
 	"fmt"
-	"github.com/graaphscom/icommon-tools/extractor/js"
-	"github.com/graaphscom/icommon-tools/extractor/metadata"
-	"github.com/graaphscom/icommon-tools/extractor/strcase"
 	"os"
 	"path"
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/graaphscom/icommon-tools/extractor/js"
+	"github.com/graaphscom/icommon-tools/extractor/metadata"
+	"github.com/graaphscom/icommon-tools/extractor/strcase"
 )
 
 var treeBuilders = map[string]treeBuilder{
@@ -32,10 +33,13 @@ var treeBuilders = map[string]treeBuilder{
 	},
 	"fluentui": categoriesTreeBuilder{
 		iconsTreeBuilder: iconsTreeBuilder{
-			iconNameConverter: func(in string) string {
-				return fixVarNameFirstChar(strcase.ToCamel(strings.TrimPrefix(strings.TrimSuffix(in, ".svg"), "ic_fluent"), strcase.SnakeRegexp))
+			iconNameConverter: func(in string, lowercaseExistingNames map[string]struct{}) string {
+				return fixDuplicateName(
+					fixVarNameFirstChar(strcase.ToCamel(strings.TrimPrefix(strings.TrimSuffix(in, ".svg"), "ic_fluent"), strcase.SnakeRegexp)),
+					lowercaseExistingNames,
+				)
 			},
-			treeNameConverter: treeNameSpaceConverter,
+			treeNameConverter: treeNameSpaceDuplicatesConverter,
 			srcSuffix:         "SVG",
 			tagsExtractor: func(metadata metadata.Store, rawRootName, rawName string) (IconTags, error) {
 				m, err := metadata.GetFluentui(rawRootName)
@@ -130,7 +134,6 @@ var treeBuilders = map[string]treeBuilder{
 			iconNameConverter: iconNameKebabCaseConverter,
 			tagsExtractor: func(metadata metadata.Store, rawRootName, rawName string) (IconTags, error) {
 				m, err := metadata.GetUnicons(rawRootName)
-				var _ = m
 				if err != nil {
 					return IconTags{}, err
 				}
@@ -150,7 +153,7 @@ var treeBuilders = map[string]treeBuilder{
 	},
 }
 
-func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName string) (IconsTree, error) {
+func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName string, _ map[string]struct{}) (IconsTree, error) {
 	srcEntries, err := os.ReadDir(src)
 
 	if err != nil {
@@ -209,15 +212,23 @@ func (b materialIconsTreeBuilder) buildTree(_ metadata.Store, src, rootName stri
 
 type materialIconsTreeBuilder struct{}
 
-func iconNameKebabCaseConverter(in string) string {
-	return fixReservedWords(fixVarNameFirstChar(strcase.ToCamel(strings.TrimSuffix(in, ".svg"), strcase.KebabRegexp)))
+func iconNameKebabCaseConverter(in string, lowercaseExistingNames map[string]struct{}) string {
+	return fixDuplicateName(fixReservedWords(fixVarNameFirstChar(strcase.ToCamel(strings.TrimSuffix(in, ".svg"), strcase.KebabRegexp))), lowercaseExistingNames)
 }
 
 func iconNameSnakeCaseConverter(in string) string {
 	return fixVarNameFirstChar(strcase.ToCamel(strings.TrimSuffix(in, ".svg"), strcase.SnakeRegexp))
 }
 
-func treeNameSpaceConverter(in string) string {
+func treeNameSpaceDuplicatesConverter(in string, siblingsLowercaseNames map[string]struct{}) string {
+	result := strcase.ToCamel(in, strcase.SpaceRegexp)
+	if _, ok := siblingsLowercaseNames[strings.ToLower(result)]; ok {
+		return result + "V2"
+	}
+	return result
+}
+
+func treeNameSpaceConverter(in string, _ map[string]struct{}) string {
 	return strcase.ToCamel(in, strcase.SpaceRegexp)
 }
 
@@ -226,7 +237,7 @@ func tagsExtractorKebabCase(_ metadata.Store, _, rawName string) (IconTags, erro
 }
 
 var firstHyphenRegexp, _ = regexp.Compile(`^\w*-`)
-var fluentuiTagsRegexp, _ = regexp.Compile(`ic_fluent_(.*?)_(\d*)?_(regular|filled|light)?(_ltr)?(_rtl)?.svg`)
+var fluentuiTagsRegexp, _ = regexp.Compile(`ic_fluent_(.*?)_(\d*)?_(regular|filled|light|color)?(_ltr)?(_rtl)?.svg`)
 var octiconsTagsRegexp, _ = regexp.Compile(`(.*?)(-circle)?(-fill)?(-\d*)?.svg`)
 var remixiconTagsRegexp, _ = regexp.Compile(`(.*)(-line|-fill)?.svg`)
 
@@ -237,6 +248,13 @@ func fixVarNameFirstChar(varName string) string {
 	}
 
 	return varName
+}
+
+func fixDuplicateName(iconName string, lowercaseExistingNames map[string]struct{}) string {
+	if _, ok := lowercaseExistingNames[strings.ToLower(iconName)]; ok {
+		return iconName + "V2"
+	}
+	return iconName
 }
 
 func fixReservedWords(varName string) string {

@@ -6,7 +6,7 @@ import (
 )
 
 type treeBuilder interface {
-	buildTree(metadata metadata.Store, src, rootName string) (IconsTree, error)
+	buildTree(metadata metadata.Store, src, rootName string, siblingsLowercaseNames map[string]struct{}) (IconsTree, error)
 }
 
 type IconsTree struct {

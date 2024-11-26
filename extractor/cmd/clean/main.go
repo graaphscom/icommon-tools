@@ -137,10 +137,10 @@ func findObsoleteFiles(manifest js.IcoManifest, uniTreeFiles map[string]bool) ([
 				return fs.SkipDir
 			}
 		}
-		if d.Name() == "node_modules" {
+		if d.Name() == "node_modules" || d.Name() == ".turbo" {
 			return fs.SkipDir
 		}
-		if d.IsDir() || d.Name() == "package.json" {
+		if d.IsDir() || d.Name() == "package.json" || d.Name() == "tsconfig.json" {
 			return nil
 		}
 		if _, ok := uniTreeFiles[walkPath]; !ok {

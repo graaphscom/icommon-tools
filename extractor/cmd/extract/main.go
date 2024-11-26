@@ -10,7 +10,6 @@ import (
 	"github.com/redis/rueidis"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -50,20 +49,6 @@ func main() {
 			commandsIdx++
 		}
 	})
-
-	caseInsensitiveOccurrences := make(map[string][]string)
-	tree.MustTraverse([]string{}, func(segments []string, iconSet unitree.IconSet) {
-		for _, icon := range iconSet.Icons {
-			iconLowerNameFullPath := strings.Join(append(segments, strings.ToLower(icon.Name)), ":")
-			caseInsensitiveOccurrences[iconLowerNameFullPath] = append(caseInsensitiveOccurrences[iconLowerNameFullPath], icon.Name)
-		}
-	})
-	var duplicates [][]string
-	for _, cases := range caseInsensitiveOccurrences {
-		if len(cases) > 1 {
-			duplicates = append(duplicates, cases)
-		}
-	}
 
 	ctx := context.Background()
 	commands[commandsIdx] = db.CreateSearchIndex(conn.B())

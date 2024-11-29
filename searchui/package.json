@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@icommon/boxicons": "link:../../icommon/packages/boxicons",
@@ -19,20 +19,22 @@
     "@icommon/radixui": "link:../../icommon/packages/radixui",
     "@icommon/remixicon": "link:../../icommon/packages/remixicon",
     "@icommon/unicons": "link:../../icommon/packages/unicons",
-    "next": "^14.2.5",
+    "next": "^15.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redis": "^4.7.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.2",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@vercel/style-guide": "^6.0.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.5",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
-  },
-  "prettier": "@vercel/style-guide/prettier"
+    "eslint-config-next": "15.0.3",
+    "postcss": "^8.4.49",
+    "prettier": "^3.4.0",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2"
+  }
 }
